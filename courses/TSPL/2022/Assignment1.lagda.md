@@ -8,7 +8,8 @@ module Assignment1 where
 ```
 
 ## YOUR NAME AND EMAIL GOES HERE
-
+Minsuan Teh
+s1817967@ed.ac.uk
 
 ## Introduction
 
@@ -44,7 +45,7 @@ module Naturals where
   import Relation.Binary.PropositionalEquality as Eq
   open Eq using (_≡_; refl)
   open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _∎)
-  import Data.Nat using (ℕ; zero; suc; _+_; _*_; _^_; _∸_)
+  open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_)
 ```
 
 #### Exercise `seven` (practice) {#seven}
@@ -52,7 +53,8 @@ module Naturals where
 Write out `7` in longhand.
 
 ```agda
-  -- Your code goes here
+  seven : ℕ
+  seven = suc (suc (suc (suc (suc (suc (suc zero))))))
 ```
 
 You will need to give both a type signature and definition for the
@@ -64,7 +66,23 @@ variable `seven`. Type `C-c C-l` in Emacs to instruct Agda to re-load.
 Compute `3 + 4`, writing out your reasoning as a chain of equations, using the equations for `+`.
 
 ```agda
-  -- Your code goes here
+  _ : 3 + 4 ≡ 7
+  _ =
+    begin
+      3 + 4
+    ≡⟨⟩
+      (suc (suc (suc zero))) + (suc (suc (suc (suc (zero)))))
+    ≡⟨⟩
+      suc ((suc (suc (zero))) + (suc (suc (suc (suc (zero))))))
+    ≡⟨⟩
+      suc (suc (suc zero) + (suc (suc (suc (suc zero)))))
+    ≡⟨⟩
+      suc (suc (suc (zero + (suc (suc (suc (suc zero)))))))
+    ≡⟨⟩
+      suc (suc (suc (suc (suc (suc (suc zero))))))
+    ≡⟨⟩
+      7
+    ∎
 ```
 
 
@@ -74,7 +92,21 @@ Compute `3 * 4`, writing out your reasoning as a chain of equations, using the e
 (You do not need to step through the evaluation of `+`.)
 
 ```agda
-  -- Your code goes here
+  _ : 3 * 4 ≡ 12
+  _ =
+    begin
+      3 * 4
+    ≡⟨⟩
+      suc (suc (suc zero)) * suc (suc (suc (suc zero)))
+    ≡⟨⟩
+      4 + (suc (suc zero) * suc (suc (suc (suc zero))))
+    ≡⟨⟩
+      4 + (4 + (suc zero * suc (suc (suc (suc zero)))))
+    ≡⟨⟩
+      4 + 4 + 4 + (0 * 3)
+    ≡⟨⟩
+      12
+    ∎
 ```
 
 
@@ -88,7 +120,27 @@ Define exponentiation, which is given by the following equations:
 Check that `3 ^ 4` is `81`.
 
 ```agda
-  -- Your code goes here
+  _^_ : ℕ → ℕ → ℕ
+  m ^ zero = 1
+  m ^ (suc n) = m * (m ^ n)
+
+  _ : 3 ^ 4 ≡ 81
+  _ =
+    begin
+      3 ^ 4
+    ≡⟨⟩
+      3 * (3 ^ 3)
+    ≡⟨⟩
+      3 * (3 * (3 ^ 2))
+    ≡⟨⟩
+      3 * (3 * (3 * (3 ^ 1)))
+    ≡⟨⟩
+      3 * (3 * (3 * (3 * (3 ^ 0))))
+    ≡⟨⟩
+      3 * (3 * (3 * (3 * 1)))
+    ≡⟨⟩
+      81
+    ∎
 ```
 
 
@@ -98,7 +150,31 @@ Check that `3 ^ 4` is `81`.
 Compute `5 ∸ 3` and `3 ∸ 5`, writing out your reasoning as a chain of equations.
 
 ```agda
-  -- Your code goes here
+  _ = 
+    begin
+      5 ∸ 3
+    ≡⟨⟩
+      4 ∸ 2
+    ≡⟨⟩
+      3 ∸ 1
+    ≡⟨⟩
+      2 ∸ 0
+    ≡⟨⟩
+      2
+    ∎
+
+  _ = 
+    begin
+      3 ∸ 5
+    ≡⟨⟩
+      2 ∸ 4
+    ≡⟨⟩
+      1 ∸ 3
+    ≡⟨⟩
+      0 ∸ 2
+    ≡⟨⟩
+      0
+    ∎
 ```
 
 
@@ -148,7 +224,219 @@ represents a positive natural, and represent zero by `⟨⟩ O`.
 Confirm that these both give the correct answer for zero through four.
 
 ```agda
-  -- Your code goes here
+  inc : Bin → Bin
+  inc ⟨⟩ = ⟨⟩ I
+  inc (x O) = x I
+  inc (x I) = (inc x) O
+
+  _ =
+    begin
+      ⟨⟩ I
+    ≡⟨⟩
+      inc (⟨⟩ O)
+    ∎
+
+  _ = 
+    begin
+      ⟨⟩ I O
+    ≡⟨⟩
+      inc (⟨⟩ I)
+    ≡⟨⟩
+      inc (inc (⟨⟩ O))
+    ∎
+
+  _ = 
+    begin
+      ⟨⟩ I I
+    ≡⟨⟩
+      inc (⟨⟩ I O)
+    ≡⟨⟩
+      inc (inc (⟨⟩ I))
+    ≡⟨⟩
+      inc (inc (inc (⟨⟩ O)))
+    ∎
+
+  _ = 
+    begin
+      ⟨⟩ I O O
+    ≡⟨⟩
+      inc (⟨⟩ I I)
+    ≡⟨⟩
+      inc (inc (⟨⟩ I O))
+    ≡⟨⟩
+      inc (inc (inc (⟨⟩ I)))
+    ≡⟨⟩
+      inc (inc (inc (inc (⟨⟩ O))))
+    ∎
+```
+
+```agda
+  to : ℕ → Bin
+  to 0 = ⟨⟩ O
+  to (suc x) = inc (to x)
+
+  _ =
+    begin
+      to 0
+    ≡⟨⟩
+      ⟨⟩ O
+    ∎
+
+  _ =
+    begin
+      to 1
+    ≡⟨⟩
+      inc (to 0)
+    ≡⟨⟩
+      inc (⟨⟩ O)
+    ≡⟨⟩
+      ⟨⟩ I
+    ∎
+
+  _ =
+    begin
+      to 2
+    ≡⟨⟩
+      inc (to 1)
+    ≡⟨⟩
+      inc (inc (to 0))
+    ≡⟨⟩
+      inc (inc (⟨⟩ O))
+    ≡⟨⟩
+      inc (⟨⟩ I)
+    ≡⟨⟩
+      ⟨⟩ I O
+    ∎
+
+  _ =
+    begin
+      to 3
+    ≡⟨⟩
+      inc (to 2)
+    ≡⟨⟩
+      inc (inc (to 1))
+    ≡⟨⟩
+      inc (inc (inc ((to 0))))
+    ≡⟨⟩
+      inc (inc (inc (⟨⟩ O)))
+    ≡⟨⟩
+      inc (inc (⟨⟩ I))
+    ≡⟨⟩
+      inc (⟨⟩ I O)
+    ≡⟨⟩
+      ⟨⟩ I I
+    ∎
+
+  _ =
+    begin
+      to 4
+    ≡⟨⟩
+      inc (to 3)
+    ≡⟨⟩
+      inc (inc (to 2))
+    ≡⟨⟩
+      inc (inc (inc ((to 1))))
+    ≡⟨⟩
+      inc (inc (inc (inc ((to 0)))))
+    ≡⟨⟩
+      inc (inc (inc (inc (⟨⟩ O))))
+    ≡⟨⟩
+      inc (inc (inc (⟨⟩ I)))
+    ≡⟨⟩
+      inc (inc (⟨⟩ I O))
+    ≡⟨⟩
+      inc (⟨⟩ I I)
+    ≡⟨⟩
+      ⟨⟩ I O O
+    ∎
+```
+
+```agda
+  from : Bin → ℕ
+  from ⟨⟩ = 0
+  from (x O) = (from x) + (from x)
+  from (x I) = suc ((from x) + (from x))
+
+  _ =
+    begin
+      from (⟨⟩ O)
+    ≡⟨⟩
+      (from ⟨⟩) + (from ⟨⟩)
+    ≡⟨⟩
+      0 + 0
+    ≡⟨⟩
+      0
+    ∎
+
+  _ =
+    begin
+      from (⟨⟩ I)
+    ≡⟨⟩
+      suc ((from ⟨⟩) + (from ⟨⟩))
+    ≡⟨⟩
+      suc (0 + 0)
+    ≡⟨⟩
+      suc 0
+    ≡⟨⟩
+      1
+    ∎
+
+  _ =
+    begin
+      from (⟨⟩ I O)
+    ≡⟨⟩
+      (from (⟨⟩ I)) + (from (⟨⟩ I))
+    ≡⟨⟩
+      (suc ((from ⟨⟩) + (from ⟨⟩))) + (suc ((from ⟨⟩) + (from ⟨⟩)))
+    ≡⟨⟩
+      (suc (0 + 0)) + (suc (0 + 0))
+    ≡⟨⟩
+      (suc 0) + (suc 0)
+    ≡⟨⟩
+      1 + 1
+    ≡⟨⟩
+      2
+    ∎
+
+  _ =
+    begin
+      from (⟨⟩ I I)
+    ≡⟨⟩
+      suc ((from (⟨⟩ I)) + (from (⟨⟩ I)))
+    ≡⟨⟩
+      suc ((suc ((from ⟨⟩) + (from ⟨⟩))) + (suc ((from ⟨⟩) + (from ⟨⟩))))
+    ≡⟨⟩
+      suc ((suc (0 + 0)) + (suc (0 + 0)))
+    ≡⟨⟩
+      suc ((suc 0) + (suc 0))
+    ≡⟨⟩
+      suc (1 + 1)
+    ≡⟨⟩
+      suc 2
+    ≡⟨⟩
+      3
+    ∎
+
+  _ =
+    begin
+      from (⟨⟩ I O O)
+    ≡⟨⟩
+      (from (⟨⟩ I O)) + (from (⟨⟩ I O))
+    ≡⟨⟩
+      ((from (⟨⟩ I)) + (from (⟨⟩ I))) + ((from (⟨⟩ I)) + (from (⟨⟩ I)))
+    ≡⟨⟩
+      ((suc ((from ⟨⟩) + (from ⟨⟩))) + (suc ((from ⟨⟩) + (from ⟨⟩)))) + ((suc ((from ⟨⟩) + (from ⟨⟩))) + (suc ((from ⟨⟩) + (from ⟨⟩))))
+    ≡⟨⟩
+      ((suc (0 + 0)) + (suc (0 + 0))) + ((suc (0 + 0)) + (suc (0 + 0)))
+    ≡⟨⟩
+      ((suc 0) + (suc 0)) + ((suc 0) + (suc 0))
+    ≡⟨⟩
+      (1 + 1) + (1 + 1)
+    ≡⟨⟩
+      2 + 2
+    ≡⟨⟩
+      4
+    ∎
 ```
 
 
@@ -489,3 +777,4 @@ if `One b` then `1` is less or equal to the result of `from b`.)
 ```agda
   -- Your code goes here
 ```
+    
