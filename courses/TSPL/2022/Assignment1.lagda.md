@@ -139,6 +139,12 @@ Check that `3 ^ 4` is `81`.
     ≡⟨⟩
       3 * (3 * (3 * (3 * 1)))
     ≡⟨⟩
+      3 * (3 * (3 * 3))
+    ≡⟨⟩
+      3 * (3 * 9)
+    ≡⟨⟩
+      3 * 27
+    ≡⟨⟩
       81
     ∎
 ```
@@ -354,8 +360,8 @@ Confirm that these both give the correct answer for zero through four.
 ```agda
   from : Bin → ℕ
   from ⟨⟩ = 0
-  from (x O) = (from x) + (from x)
-  from (x I) = suc ((from x) + (from x))
+  from (x O) = 2 * from x
+  from (x I) = 2 * from x + 1
 
   _ =
     begin
@@ -485,7 +491,46 @@ first four days using a finite story of creation, as
 [earlier](/Naturals/#finite-creation).
 
 ```agda
-  -- Your code goes here
+  -- Day 0
+
+  -- Day 1
+  -- 0 : ℕ
+
+  -- Day 2
+  -- 1 : ℕ
+  -- (0 + 0) + 0 ≡ 0 + (0 + 0)
+
+  -- Day 3
+  -- 2 : ℕ
+  -- (0 + 0) + 1 ≡ 0 + (0 + 1)
+  -- (0 + 1) + 0 ≡ 0 + (1 + 0)
+  -- (0 + 1) + 1 ≡ 0 + (1 + 1)
+  -- (1 + 0) + 0 ≡ 1 + (0 + 0)
+  -- (1 + 0) + 1 ≡ 1 + (0 + 1)
+  -- (1 + 1) + 0 ≡ 1 + (1 + 0)
+  -- (1 + 1) + 1 ≡ 1 + (1 + 1)
+
+  -- Day 4
+  -- 3 : ℕ
+  -- (0 + 0) + 2 ≡ 0 + (0 + 2)
+  -- (0 + 1) + 2 ≡ 0 + (1 + 2)
+  -- (0 + 2) + 0 ≡ 0 + (2 + 0)
+  -- (0 + 2) + 1 ≡ 0 + (2 + 1)
+  -- (0 + 2) + 2 ≡ 0 + (2 + 2)
+  -- (1 + 0) + 2 ≡ 1 + (0 + 2)
+  -- (1 + 1) + 2 ≡ 1 + (1 + 2)
+  -- (1 + 2) + 0 ≡ 1 + (2 + 0)
+  -- (1 + 2) + 1 ≡ 1 + (2 + 1)
+  -- (1 + 2) + 2 ≡ 1 + (2 + 2)
+  -- (2 + 0) + 0 ≡ 2 + (0 + 0)
+  -- (2 + 0) + 1 ≡ 2 + (0 + 1)
+  -- (2 + 0) + 2 ≡ 2 + (0 + 2)
+  -- (2 + 1) + 0 ≡ 2 + (1 + 0)
+  -- (2 + 1) + 1 ≡ 2 + (1 + 1)
+  -- (2 + 1) + 2 ≡ 2 + (1 + 2)
+  -- (2 + 2) + 0 ≡ 2 + (2 + 0)
+  -- (2 + 2) + 1 ≡ 2 + (2 + 1)
+  -- (2 + 2) + 2 ≡ 2 + (2 + 2)
 ```
 
 #### Exercise `+-swap` (recommended) {#plus-swap}
@@ -499,7 +544,17 @@ just apply the previous results which show addition
 is associative and commutative.
 
 ```agda
-  -- Your code goes here
+  +-swap : ∀ (m n p : ℕ) → m + (n + p) ≡ n + (m + p)
+  +-swap m n p =
+    begin
+      m + (n + p)
+    ≡⟨ sym (+-assoc m n p) ⟩
+      (m + n) + p
+    ≡⟨ cong (_+ p) (+-comm m n) ⟩
+      (n + m) + p
+    ≡⟨ +-assoc n m p ⟩
+      n + (m + p)
+    ∎
 ```
 
 
@@ -512,7 +567,9 @@ Show multiplication distributes over addition, that is,
 for all naturals `m`, `n`, and `p`.
 
 ```agda
-  -- Your code goes here
+  *-distrib-+ : ∀ (m n p : ℕ) → (m + n) * p ≡ m * p + n * p
+  *-distrib-+ 0 n p = refl
+  *-distrib-+ (suc m) n p rewrite *-distrib-+ m n p = sym (+-assoc p (m * p) (n * p))
 ```
 
 
@@ -525,7 +582,9 @@ Show multiplication is associative, that is,
 for all naturals `m`, `n`, and `p`.
 
 ```agda
-  -- Your code goes here
+  *-assoc : ∀ (m n p : ℕ) → (m * n) * p ≡ m * (n * p)
+  *-assoc 0 n p = refl
+  *-assoc (suc m) n p rewrite *-distrib-+ n (m * n) p | *-assoc m n p = refl
 ```
 
 
@@ -539,7 +598,69 @@ for all naturals `m` and `n`.  As with commutativity of addition,
 you will need to formulate and prove suitable lemmas.
 
 ```agda
-  -- Your code goes here
+  *-comm : ∀ (m n : ℕ) → m * n ≡ n * m
+  *-comm 0 0 =
+    begin
+      0 * 0
+    ≡⟨⟩
+      0
+    ≡⟨⟩
+      0 * 0
+    ∎
+  *-comm (suc m) 0 =
+    begin
+      suc m * 0
+    ≡⟨⟩
+      0 + m * 0
+    ≡⟨⟩
+      m * 0
+    ≡⟨ *-comm m 0 ⟩
+      0 * m
+    ≡⟨⟩
+      0 * m + 0
+    ≡⟨⟩
+      0 * suc m
+    ∎
+  *-comm 0 (suc n) =
+    begin
+      0 * suc n
+    ≡⟨⟩
+      0 * n + 0
+    ≡⟨⟩
+      0 * n
+    ≡⟨ *-comm 0 n ⟩
+      n * 0
+    ≡⟨⟩
+      0 + (n * 0)
+    ≡⟨⟩
+      suc n * 0
+    ∎
+  *-comm (suc m) (suc n) =
+    begin
+      (suc m) * (suc n)
+    ≡⟨⟩
+      (suc n) + (m * (suc n))
+    ≡⟨ cong ((suc n) +_) (*-comm m (suc n)) ⟩
+      (suc n) + ((suc n) * m)
+    ≡⟨⟩
+      (suc n) + (m + (n * m))
+    ≡⟨ +-swap (suc n) m (n * m) ⟩
+      m + ((suc n) + (n * m))
+    ≡⟨ sym (+-assoc m (suc n) (n * m)) ⟩
+      (m + (suc n)) + (n * m)
+    ≡⟨ cong (_+ (n * m)) (+-suc m n) ⟩
+      suc (m + n) + (n * m)
+    ≡⟨ cong suc (+-assoc m n (n * m)) ⟩
+      (suc m) + (n + (n * m))
+    ≡⟨ cong (λ n*m → (suc m) + (n + n*m)) (*-comm n m) ⟩
+      (suc m) + (n + (m * n))
+    ≡⟨⟩
+      (suc m) + ((suc m) * n)
+    ≡⟨ cong ((suc m) +_) (*-comm ((suc m)) n) ⟩
+      (suc m) + (n * (suc m))
+    ≡⟨⟩
+      (suc n) * (suc m)
+    ∎
 ```
 
 
@@ -579,8 +700,87 @@ Show the following three laws
 
 for all `m`, `n`, and `p`.
 
-```
-  -- Your code goes here
+```agda
+  open Naturals
+
+  ^-distribˡ-+-* : ∀ (m n p : ℕ) → m ^ (n + p) ≡ (m ^ n) * (m ^ p)
+  ^-distribˡ-+-* m zero p = sym (+-identityʳ (m ^ p))
+  ^-distribˡ-+-* m (suc n) p = 
+    begin
+      m ^ (suc n + p)
+    ≡⟨⟩
+      m * m ^ (n + p)
+    ≡⟨ cong (_*_ m) (^-distribˡ-+-* m n p) ⟩
+      m * ((m ^ n) * (m ^ p))
+    ≡⟨ sym (*-assoc m (m ^ n) (m ^ p)) ⟩
+      m * m ^ n * m ^ p
+    ≡⟨⟩
+      m ^ (suc n) * m ^ p
+    ∎
+
+  ^-distribʳ-* : ∀ (m n p : ℕ) → (m * n) ^ p ≡ (m ^ p) * (n ^ p)
+  ^-distribʳ-* m n 0 =
+    begin
+      (m * n) ^ 0
+    ≡⟨⟩
+      1
+    ≡⟨⟩
+      (m ^ 0) * (n ^ 0)
+    ∎
+  ^-distribʳ-* m n (suc p) =
+    begin
+      (m * n) ^ suc p
+    ≡⟨⟩
+      (m * n) * (m * n) ^ p
+    ≡⟨ cong ((m * n) *_) (^-distribʳ-* m n p) ⟩
+      (m * n) * ((m ^ p) * (n ^ p))
+    ≡⟨ *-assoc m n (m ^ p * n ^ p) ⟩
+      m * (n * ((m ^ p) * (n ^ p)))
+    ≡⟨ cong (m *_) (*-comm n ((m ^ p) * (n ^ p))) ⟩
+      m * (((m ^ p) * (n ^ p)) * n)
+    ≡⟨ sym (*-assoc m ((m ^ p) * (n ^ p)) n) ⟩
+      (m * ((m ^ p) * (n ^ p))) * n  
+    ≡⟨ cong (_* n) (sym (*-assoc m (m ^ p) (n ^ p))) ⟩
+      ((m * (m ^ p)) * (n ^ p)) * n
+    ≡⟨⟩
+      ((m ^ suc p) * (n ^ p)) * n
+    ≡⟨ *-assoc (m ^ suc p) (n ^ p) n ⟩
+      (m ^ suc p) * ((n ^ p) * n)
+    ≡⟨ cong (m ^ suc p *_) (*-comm (n ^ p) n) ⟩
+      (m ^ suc p) * (n * (n ^ p))
+    ≡⟨⟩
+      (m ^ suc p) * (n ^ suc p)
+    ∎
+
+  ^-*-assoc : ∀ (m n p : ℕ) → (m ^ n) ^ p ≡ m ^ (n * p)
+  ^-*-assoc m n 0 =
+    begin
+      (m ^ n) ^ 0
+    ≡⟨⟩
+      1
+    ≡⟨⟩
+      m ^ 0
+    ≡⟨⟩
+      m ^ (0 * n)
+    ≡⟨ cong (m ^_) (*-comm 0 n) ⟩
+      m ^ (n * 0)
+    ∎
+  ^-*-assoc m n (suc p) =
+    begin
+      (m ^ n) ^ suc p
+    ≡⟨⟩
+      (m ^ n) * ((m ^ n) ^ p)
+    ≡⟨ cong (m ^ n *_) (^-*-assoc m n p) ⟩
+      (m ^ n) * (m ^ (n * p))
+    ≡⟨ sym (^-distribˡ-+-* m n (n * p)) ⟩
+      m ^ (n + n * p)
+    ≡⟨ cong (λ n*p → m ^ (n + n*p)) (*-comm n p) ⟩
+      m ^ (n + p * n)
+    ≡⟨⟩
+      m ^ (suc p * n)
+    ≡⟨ cong (m ^_) (*-comm (suc p) n) ⟩
+      m ^ (n * suc p)
+    ∎
 ```
 
 
@@ -605,7 +805,108 @@ over bitstrings:
 For each law: if it holds, prove; if not, give a counterexample.
 
 ```agda
-  -- Your code goes here
+
+  from-inc : ∀ (b : Bin) → from (inc b) ≡ suc (from b)
+  from-inc ⟨⟩ =
+    begin
+      from (inc ⟨⟩)
+    ≡⟨⟩
+      from (⟨⟩ I)
+    ≡⟨⟩
+      1
+    ≡⟨⟩
+      suc 0
+    ≡⟨⟩
+      suc (from (⟨⟩))
+    ∎
+  from-inc (b O) =
+    begin
+      from (inc (b O))
+    ≡⟨⟩
+      from (b I)
+    ≡⟨⟩
+      2 * from b + 1
+    ≡⟨⟩
+      from (b O) + 1
+    ≡⟨ +-suc (from (b O)) zero ⟩
+      suc (from (b O) + zero)
+    ≡⟨ cong suc (+-identityʳ (from (b O))) ⟩
+      suc (from (b O))
+    ∎
+  from-inc (b I) =
+    begin
+      from (inc (b I))
+    ≡⟨⟩
+      from ((inc b) O)
+    ≡⟨⟩
+      2 * from (inc b)
+    ≡⟨ cong (2 *_) (from-inc b) ⟩
+      2 * suc (from b)
+    ≡⟨⟩
+      suc 1 * suc (from b)
+    ≡⟨⟩
+      suc (suc 0) * suc (from b)
+    ≡⟨⟩
+      suc (from b) + (suc 0 * suc (from b))
+    ≡⟨⟩
+      suc (from b) + (suc (from b) + (0 * suc (from b)))
+    ≡⟨⟩
+      suc (from b) + (suc (from b) + 0)
+    ≡⟨ cong (suc (from b) +_) (+-identityʳ (suc (from b))) ⟩
+      suc (from b) + suc (from b)
+    ≡⟨ +-suc (suc (from b)) (from b) ⟩
+      suc (suc (from b) + from b)
+    ≡⟨ cong suc (sym (+-assoc 1 (from b) (from b))) ⟩
+      suc (suc (from b + from b))
+    ≡⟨ cong ((λ n → suc (suc (from b + n)))) (sym (+-identityʳ (from b))) ⟩
+      suc (suc (from b + (from b + 0)))
+    ≡⟨⟩
+      suc (suc (from b + (from b + (0 * from b))))
+    ≡⟨⟩
+      suc (suc (from b + (1 * from b)))
+    ≡⟨⟩
+      suc (suc (2 * from b))
+    ≡⟨⟩
+      suc (1 + 2 * from b)
+    ≡⟨ cong (suc) (+-comm 1 (2 * from b)) ⟩
+      suc (2 * from b + 1)
+    ≡⟨⟩
+      suc (from (b I))
+    ∎
+
+  -- to (from (⟨⟩ O I)) = ⟨⟩ I which isn't ⟨⟩ O I
+  _ =
+    begin
+      to (from (⟨⟩ O I))
+    ≡⟨⟩
+      to 1
+    ≡⟨⟩
+      ⟨⟩ I -- not ⟨⟩ O I
+    ∎
+
+  from-to : ∀ (n : ℕ) → from (to n) ≡ n
+  from-to 0 =
+    begin
+      from (to 0)
+    ≡⟨⟩
+      from (⟨⟩ O)
+    ≡⟨⟩
+      2 * from (⟨⟩)
+    ≡⟨⟩
+      2 * 0
+    ≡⟨⟩
+      0
+    ∎
+  from-to (suc n) =
+    begin
+      from (to (suc n))
+    ≡⟨⟩
+      from (inc (to n))
+    ≡⟨ from-inc (to n) ⟩
+      suc (from (to n))
+    ≡⟨ cong suc (from-to n) ⟩
+      suc n
+    ∎
 ```
 
 
@@ -624,8 +925,10 @@ module Relations where
 ```agda
   import Relation.Binary.PropositionalEquality as Eq
   open Eq using (_≡_; refl; cong)
-  open import Data.Nat using (ℕ; zero; suc; _+_)
-  open import Data.Nat.Properties using (+-comm; +-identityʳ)
+  open import Data.Nat using (ℕ; zero; suc; _+_; _*_; _∸_)
+  open import Data.Nat.Properties using (+-comm; +-identityʳ; *-comm)
+  open import plfa.part1.Relations
+  open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _∎)
 ```
 
 
@@ -658,7 +961,22 @@ argument is `s≤s`.  Why is it ok to omit them?
 Show that multiplication is monotonic with regard to inequality.
 
 ```agda
-  -- Your code goes here
+  *-monoʳ-≤ : ∀ (n p q : ℕ)
+    → p ≤ q
+    → n * p ≤ n * q
+  *-monoʳ-≤ zero p q p≤q = z≤n
+  *-monoʳ-≤ (suc n) p q p≤q = +-mono-≤ p q (n * p) (n * q) p≤q (*-monoʳ-≤ n p q p≤q)
+
+  *-monoˡ-≤ : ∀ (m n p : ℕ)
+    → m ≤ n
+    → m * p ≤ n * p
+  *-monoˡ-≤ m n p m≤n rewrite *-comm m p | *-comm n p = *-monoʳ-≤ p m n m≤n
+
+  *-mono-≤ : ∀ (m n p q : ℕ)
+    → m ≤ n
+    → p ≤ q
+    → m * p ≤ n * q
+  *-mono-≤ m n p q m≤n p≤q = ≤-trans (*-monoˡ-≤ m n p m≤n) (*-monoʳ-≤ n p q p≤q)
 ```
 
 
@@ -668,7 +986,9 @@ Show that strict inequality is transitive. Use a direct proof. (A later
 exercise exploits the relation between < and ≤.)
 
 ```agda
-  -- Your code goes here
+  <-trans : ∀ {m n p} → m < n → n < p → m < p
+  <-trans z<s (s<s n<p) = z<s
+  <-trans (s<s m<n) (s<s n<p) = s<s (<-trans m<n n<p)
 ```
 
 #### Exercise `trichotomy` (practice) {#trichotomy}
@@ -695,7 +1015,25 @@ Show that addition is monotonic with respect to strict inequality.
 As with inequality, some additional definitions may be required.
 
 ```agda
-  -- Your code goes here
+  +-monoʳ-< : ∀ (n p q : ℕ)
+    → p < q
+      -------------
+    → n + p < n + q
+  +-monoʳ-< zero    p q p<q  =  p<q
+  +-monoʳ-< (suc n) p q p<q  =  s<s (+-monoʳ-< n p q p<q)
+
+  +-monoˡ-< : ∀ (m n p : ℕ)
+    → m < n
+      -------------
+    → m + p < n + p
+  +-monoˡ-< m n p m<n  rewrite +-comm m p | +-comm n p  = +-monoʳ-< p m n m<n
+
+  +-mono-< : ∀ (m n p q : ℕ)
+    → m < n
+    → p < q
+      -------------
+    → m + p < n + q
+  +-mono-< m n p q m<n p<q  =  <-trans (+-monoˡ-< m n p m<n) (+-monoʳ-< n p q p<q)
 ```
 
 #### Exercise `≤-iff-<` (recommended) {#leq-iff-less}
@@ -703,7 +1041,9 @@ As with inequality, some additional definitions may be required.
 Show that `suc m ≤ n` implies `m < n`, and conversely.
 
 ```agda
-  -- Your code goes here
+  ≤-iff-< : ∀ (m n : ℕ) → suc m ≤ n → m < n
+  ≤-iff-< 0 n (s≤s 1≤n) = z<s
+  ≤-iff-< (suc m) (suc n) (s≤s m≤n) = s<s (≤-iff-< m n m≤n)
 ```
 
 #### Exercise `<-trans-revisited` (practice) {#less-trans-revisited}
@@ -722,7 +1062,9 @@ the fact that inequality is transitive.
 Show that the sum of two odd numbers is even.
 
 ```agda
-  -- Your code goes here
+  o+o≡e : ∀ {m n : ℕ} → odd m → odd n → even (m + n)
+  o+o≡e (suc zero) om = suc om
+  o+o≡e (suc (suc om)) on = suc (suc (o+o≡e om on))
 ```
 
 #### Exercise `Bin-predicates` (stretch) {#Bin-predicates}
@@ -775,6 +1117,59 @@ properties of `One`. Also, you may need to prove that
 if `One b` then `1` is less or equal to the result of `from b`.)
 
 ```agda
-  -- Your code goes here
+  open Naturals
+  open Induction
+
+  data One : Bin → Set where
+    ⟨⟩I : One (⟨⟩ I)
+    _O : ∀ {b : Bin} → One b → One (b O)
+    _I : ∀ {b : Bin} → One b → One (b I)
+
+  data Can : Bin → Set where
+    ⟨⟩O : Can (⟨⟩ O)
+    can : ∀ {b : Bin} → One b → Can b
+
+  -- Can b
+  --------------
+  -- Can (inc b)
+
+  one-inc : ∀ {b : Bin} → One b → One (inc b)
+  one-inc ⟨⟩I = ⟨⟩I O
+  one-inc (x O) = x I
+  one-inc (x I) = (one-inc x) O
+
+  can-inc : ∀ {b : Bin} → Can b → Can (inc b)
+  can-inc ⟨⟩O = can ⟨⟩I
+  can-inc (can ⟨⟩I) = can (⟨⟩I O)
+  can-inc (can (x O)) = can (x I)
+  can-inc (can (x I)) = can (one-inc (x I))
+
+  -------------
+  -- Can (to n)
+
+  can-to : ∀ (n : ℕ) → Can (to n)
+  can-to zero = ⟨⟩O
+  can-to (suc n) = can-inc (can-to n)
+
+  -- Can b
+  ------------------
+  -- to (from b) ≡ b
+
+{-
+  one-atleast1 : ∀ {b : Bin} → One b → (suc zero) ≤ (from b)
+  one-atleast1 ⟨⟩I = s≤s z≤n
+  one-atleast1 (x O) = <-trans (one-atleast1 ⟨⟩I) (⟨⟩I ≤ (x O))
+  one-atleast1 (x I) = <-trans (one-atleast1 (x O)) (⟨⟩I ≤ (x I))
+
+  one-to-from : ∀ {b : Bin} → One b → to (from b) ≡ b
+  one-to-from ⟨⟩I = refl
+  one-to-from (x O)
+
+  can-to-from : ∀ {b : Bin} → Can b → to (from b) ≡ b
+  can-to-from ⟨⟩O = refl
+  can-to-from (can ⟨⟩I) = refl
+  can-to-from (can (x O)) =
+  can-to-from (can (x I)) =
+  -}
 ```
-    
+               
