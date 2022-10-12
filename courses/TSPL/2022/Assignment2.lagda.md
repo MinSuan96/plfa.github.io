@@ -77,7 +77,92 @@ it to write out an alternative proof that addition is monotonic with
 regard to inequality.  Rewrite all of `+-monoˡ-≤`, `+-monoʳ-≤`, and `+-mono-≤`.
 
 ```agda
-  -- Your code goes here
+  open import Data.Nat using (_≤_; z≤n; s≤s; ℕ; zero; suc; _+_)
+  open import Data.Nat.Properties using (≤-refl; ≤-trans; +-comm)
+
+  module ≤-Reasoning where
+    infix  1 begin-≤_
+    infixr 2 _≤⟨⟩_ _≤⟨_⟩_ _≡⟨_⟩-≤_ 
+    infix  3 _∎-≤
+
+    begin-≤_ : ∀ {m n : ℕ}
+      → m ≤ n
+        -----
+      → m ≤ n
+    begin-≤ m≤n = m≤n
+
+    _≤⟨⟩_ : ∀ (m : ℕ) {n : ℕ}
+      → m ≤ n
+        -----
+      → m ≤ n
+    m ≤⟨⟩ m≤n = m≤n
+
+    _≤⟨_⟩_ : ∀ (m : ℕ) {n p : ℕ}
+      → m ≤ n
+      → n ≤ p
+        -----
+      → m ≤ p
+    m ≤⟨ m≤n ⟩ n≤p = ≤-trans m≤n n≤p
+
+    _≡⟨_⟩-≤_ : ∀ (m : ℕ) {n p : ℕ}
+      → m ≡ n
+      → n ≤ p
+        -----
+      → m ≤ p
+    m ≡⟨ refl ⟩-≤ n≤p = n≤p
+
+    _∎-≤ : ∀ (n : ℕ)
+        -----
+      → n ≤ n
+    n ∎-≤ = ≤-refl
+
+  open ≤-Reasoning
+
+  +-monoʳ-≤ : ∀ (n p q : ℕ)
+    → p ≤ q
+      -------------
+    → n + p ≤ n + q
+  +-monoʳ-≤ zero p q p≤q =
+    begin-≤
+      zero + p
+    ≤⟨ p≤q ⟩
+      zero + q
+    ∎-≤
+  +-monoʳ-≤ (suc n) p q p≤q =
+    begin-≤
+      (suc n) + p
+    ≤⟨ s≤s (+-monoʳ-≤ n p q p≤q) ⟩
+      (suc n) + q
+    ∎-≤
+
+  +-monoˡ-≤ : ∀ (m n p : ℕ)
+    → m ≤ n
+      -------------
+    → m + p ≤ n + p
+  +-monoˡ-≤ m n p m≤n =
+    begin-≤
+      m + p
+    ≡⟨ +-comm m p ⟩-≤
+      p + m
+    ≤⟨ +-monoʳ-≤ p m n m≤n ⟩
+      p + n
+    ≡⟨ +-comm p n ⟩-≤
+      n + p
+    ∎-≤
+
+  +-mono-≤ : ∀ (m n p q : ℕ)
+    → m ≤ n
+    → p ≤ q
+      -------------
+    → m + p ≤ n + q
+  +-mono-≤ m n p q m≤n p≤q =
+    begin-≤
+      m + p
+    ≤⟨ +-monoˡ-≤ m n p m≤n ⟩
+      n + p
+    ≤⟨ +-monoʳ-≤ n p q p≤q ⟩
+      n + q
+    ∎-≤
 ```
 
 
@@ -93,10 +178,10 @@ module Isomorphism where
 
 ```agda
   import Relation.Binary.PropositionalEquality as Eq
-  open Eq using (_≡_; refl; cong; cong-app)
+  open Eq using (_≡_; refl; cong; cong-app; sym)
   open Eq.≡-Reasoning
-  open import Data.Nat using (ℕ; zero; suc; _+_)
-  open import Data.Nat.Properties using (+-comm)
+  open import Data.Nat using (ℕ; zero; suc; _+_; _*_)
+  open import Data.Nat.Properties using (+-comm; +-identityʳ; +-suc; +-assoc)
 ```
 
 
@@ -152,7 +237,124 @@ which satisfy the following property:
 
 Using the above, establish that there is an embedding of `ℕ` into `Bin`.
 ```agda
-  -- Your code goes here
+  data Bin : Set where
+    ⟨⟩ : Bin
+    _O : Bin → Bin
+    _I : Bin → Bin
+
+  inc : Bin → Bin
+  inc ⟨⟩ = ⟨⟩ I
+  inc (x O) = x I
+  inc (x I) = (inc x) O
+
+  to : ℕ → Bin
+  to 0 = ⟨⟩ O
+  to (suc x) = inc (to x)
+
+  from : Bin → ℕ
+  from ⟨⟩ = 0
+  from (x O) = 2 * from x
+  from (x I) = 2 * from x + 1
+
+  from-inc : ∀ (b : Bin) → from (inc b) ≡ suc (from b)
+  from-inc ⟨⟩ =
+    begin
+      from (inc ⟨⟩)
+    ≡⟨⟩
+      from (⟨⟩ I)
+    ≡⟨⟩
+      1
+    ≡⟨⟩
+      suc 0
+    ≡⟨⟩
+      suc (from (⟨⟩))
+    ∎
+  from-inc (b O) =
+    begin
+      from (inc (b O))
+    ≡⟨⟩
+      from (b I)
+    ≡⟨⟩
+      2 * from b + 1
+    ≡⟨⟩
+      from (b O) + 1
+    ≡⟨ +-suc (from (b O)) zero ⟩
+      suc (from (b O) + zero)
+    ≡⟨ cong suc (+-identityʳ (from (b O))) ⟩
+      suc (from (b O))
+    ∎
+  from-inc (b I) =
+    begin
+      from (inc (b I))
+    ≡⟨⟩
+      from ((inc b) O)
+    ≡⟨⟩
+      2 * from (inc b)
+    ≡⟨ cong (2 *_) (from-inc b) ⟩
+      2 * suc (from b)
+    ≡⟨⟩
+      suc 1 * suc (from b)
+    ≡⟨⟩
+      suc (suc 0) * suc (from b)
+    ≡⟨⟩
+      suc (from b) + (suc 0 * suc (from b))
+    ≡⟨⟩
+      suc (from b) + (suc (from b) + (0 * suc (from b)))
+    ≡⟨⟩
+      suc (from b) + (suc (from b) + 0)
+    ≡⟨ cong (suc (from b) +_) (+-identityʳ (suc (from b))) ⟩
+      suc (from b) + suc (from b)
+    ≡⟨ +-suc (suc (from b)) (from b) ⟩
+      suc (suc (from b) + from b)
+    ≡⟨ cong suc (sym (+-assoc 1 (from b) (from b))) ⟩
+      suc (suc (from b + from b))
+    ≡⟨ cong ((λ n → suc (suc (from b + n)))) (sym (+-identityʳ (from b))) ⟩
+      suc (suc (from b + (from b + 0)))
+    ≡⟨⟩
+      suc (suc (from b + (from b + (0 * from b))))
+    ≡⟨⟩
+      suc (suc (from b + (1 * from b)))
+    ≡⟨⟩
+      suc (suc (2 * from b))
+    ≡⟨⟩
+      suc (1 + 2 * from b)
+    ≡⟨ cong (suc) (+-comm 1 (2 * from b)) ⟩
+      suc (2 * from b + 1)
+    ≡⟨⟩
+      suc (from (b I))
+    ∎
+
+  from-to : ∀ (n : ℕ) → from (to n) ≡ n
+  from-to 0 =
+    begin
+      from (to 0)
+    ≡⟨⟩
+      from (⟨⟩ O)
+    ≡⟨⟩
+      2 * from (⟨⟩)
+    ≡⟨⟩
+      2 * 0
+    ≡⟨⟩
+      0
+    ∎
+  from-to (suc n) =
+    begin
+      from (to (suc n))
+    ≡⟨⟩
+      from (inc (to n))
+    ≡⟨ from-inc (to n) ⟩
+      suc (from (to n))
+    ≡⟨ cong suc (from-to n) ⟩
+      suc n
+    ∎
+
+  ℕ≲Bin : ℕ ≲ Bin
+  ℕ≲Bin =
+    record
+      { to = to
+      ; from = from
+      ; from∘to = from-to
+      }
 ```
 
 Why do `to` and `from` not form an isomorphism?
@@ -188,7 +390,27 @@ Show that `A ⇔ B` as defined [earlier](/Isomorphism/#iff)
 is isomorphic to `(A → B) × (B → A)`.
 
 ```agda
-  -- Your code goes here
+  record _⇔_ (A B : Set) : Set where
+    field
+      to   : A → B
+      from : B → A
+  open _⇔_
+
+  ⇔≃× : ∀ {A B : Set} → A ⇔ B ≃ (A → B) × (B → A)
+  ⇔≃× =
+    record
+      { to = λ{ a⇔b → ⟨ to a⇔b , from a⇔b ⟩ }
+      ; from = λ{ abxba → record { to   = proj₁ abxba
+                                 ; from = proj₂ abxba 
+                                 } }
+      ; from∘to = λ{ a⇔b → refl }                       
+      ; to∘from = λ{ abxba → 
+          begin
+            ⟨ proj₁ abxba , proj₂ abxba ⟩
+          ≡⟨ η-× abxba ⟩
+            abxba
+          ∎ }
+      }
 ```
 
 
